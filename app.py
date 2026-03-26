@@ -3,7 +3,7 @@
 import calendar as cal_mod
 import json
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import streamlit as st
@@ -402,6 +402,20 @@ def _remove_competitor(property_name: str, listing_id: str):
     _save_all(all_comps)
 
 
+# ── Fetch helper ──────────────────────────────────────────
+
+
+def _fetch_property(listing_id: str, n_calls: int, months: int = 4) -> dict:
+    today = date.today()
+    cal_days = fetch_calendar(listing_id, today.month, today.year, count=months)
+    if not cal_days:
+        return {"days": [], "windows": []}
+    windows = build_stay_windows(cal_days)
+    priced = fetch_prices_for_windows(listing_id, windows, max_calls=n_calls)
+    enriched = interpolate_daily_prices(cal_days, priced)
+    return {"days": enriched, "windows": priced}
+
+
 # ── Hero ──────────────────────────────────────────────────
 
 st.markdown("""
@@ -426,6 +440,36 @@ with col_prop:
     )
 
 bench = BENCHMARKS[bench_name]
+
+# ── Refresh benchmark data ────────────────────────────────
+
+last_refresh_key = f"last_refresh_{bench_name}"
+last_refresh = st.session_state.get(last_refresh_key)
+
+col_refresh, col_ts = st.columns([1, 4])
+with col_refresh:
+    refresh_bench = st.button("🔄 Aggiorna dati property", use_container_width=True)
+with col_ts:
+    if last_refresh:
+        st.markdown(
+            f'<div style="padding:10px 0;font-size:13px;color:#94a3b8;">'
+            f'Ultimo aggiornamento: <strong style="color:#64748b;">{last_refresh}</strong></div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            '<div style="padding:10px 0;font-size:13px;color:#94a3b8;">Mai aggiornato</div>',
+            unsafe_allow_html=True,
+        )
+
+if refresh_bench:
+    with st.spinner(f"Aggiornamento dati {bench_name}..."):
+        bench_data = _fetch_property(bench["listing_id"], 10, st.session_state.get("months_ahead", 4))
+        st.session_state["bench"] = bench_data
+        st.session_state["bench_name"] = bench_name
+        now_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+        st.session_state[last_refresh_key] = now_str
+        st.rerun()
 
 st.divider()
 
@@ -516,20 +560,6 @@ with col_slider:
 with col_btn:
     st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
     go = st.button("Confronta", type="primary", use_container_width=True)
-
-# ── Fetch data ─────────────────────────────────────────────
-
-
-def _fetch_property(listing_id: str, n_calls: int, months: int = 4) -> dict:
-    today = date.today()
-    cal_days = fetch_calendar(listing_id, today.month, today.year, count=months)
-    if not cal_days:
-        return {"days": [], "windows": []}
-    windows = build_stay_windows(cal_days)
-    priced = fetch_prices_for_windows(listing_id, windows, max_calls=n_calls)
-    enriched = interpolate_daily_prices(cal_days, priced)
-    return {"days": enriched, "windows": priced}
-
 
 if go:
     if not comp_url_to_use:

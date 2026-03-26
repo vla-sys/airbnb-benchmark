@@ -2,11 +2,13 @@
 
 import calendar as cal_mod
 import json
+import os
 from collections import defaultdict
 from datetime import date, datetime
 from pathlib import Path
 
 import streamlit as st
+from supabase import create_client
 
 from scraper import (
     extract_listing_id,
@@ -42,6 +44,18 @@ COMP_LIGHT = "#fb7185"
 
 SAVED_FILE = Path(__file__).parent / "saved_competitors.json"
 REFRESH_FILE = Path(__file__).parent / "last_refresh.json"
+
+# ── Supabase client ───────────────────────────────────────
+
+SUPABASE_URL = st.secrets.get("SUPABASE_URL", os.environ.get("SUPABASE_URL", ""))
+SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", os.environ.get("SUPABASE_KEY", ""))
+
+_supabase = None
+def _get_db():
+    global _supabase
+    if _supabase is None and SUPABASE_URL and SUPABASE_KEY:
+        _supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    return _supabase
 
 # ── Page config ────────────────────────────────────────────
 
@@ -369,38 +383,57 @@ st.markdown("""
 
 # ── Saved competitors (per-property) ──────────────────────
 
-def _load_all_saved() -> dict[str, list[dict]]:
+def _load_saved(property_name: str) -> list[dict]:
+    db = _get_db()
+    if db:
+        resp = db.table("saved_competitors").select("*").eq("property_name", property_name).execute()
+        return [{"name": r["competitor_name"], "url": r["airbnb_url"], "listing_id": r["listing_id"]} for r in resp.data]
+    # Fallback to file
     if SAVED_FILE.exists():
         data = json.loads(SAVED_FILE.read_text())
         if isinstance(data, list):
-            return {"Ca'Mugo": data}
-        return data
-    return {}
-
-
-def _load_saved(property_name: str) -> list[dict]:
-    return _load_all_saved().get(property_name, [])
-
-
-def _save_all(all_comps: dict[str, list[dict]]):
-    SAVED_FILE.write_text(json.dumps(all_comps, indent=2))
+            data = {"Ca'Mugo": data}
+        return data.get(property_name, [])
+    return []
 
 
 def _add_competitor(property_name: str, name: str, url: str):
-    all_comps = _load_all_saved()
-    comps = all_comps.get(property_name, [])
     listing_id = extract_listing_id(url)
-    if not any(c["listing_id"] == listing_id for c in comps):
-        comps.append({"name": name, "url": url, "listing_id": listing_id})
-        all_comps[property_name] = comps
-        _save_all(all_comps)
+    db = _get_db()
+    if db:
+        db.table("saved_competitors").upsert({
+            "property_name": property_name,
+            "competitor_name": name,
+            "airbnb_url": url,
+            "listing_id": listing_id,
+        }, on_conflict="property_name,listing_id").execute()
+    else:
+        # Fallback to file
+        if SAVED_FILE.exists():
+            all_comps = json.loads(SAVED_FILE.read_text())
+            if isinstance(all_comps, list):
+                all_comps = {"Ca'Mugo": all_comps}
+        else:
+            all_comps = {}
+        comps = all_comps.get(property_name, [])
+        if not any(c["listing_id"] == listing_id for c in comps):
+            comps.append({"name": name, "url": url, "listing_id": listing_id})
+            all_comps[property_name] = comps
+            SAVED_FILE.write_text(json.dumps(all_comps, indent=2))
 
 
 def _remove_competitor(property_name: str, listing_id: str):
-    all_comps = _load_all_saved()
-    comps = all_comps.get(property_name, [])
-    all_comps[property_name] = [c for c in comps if c["listing_id"] != listing_id]
-    _save_all(all_comps)
+    db = _get_db()
+    if db:
+        db.table("saved_competitors").delete().eq("property_name", property_name).eq("listing_id", listing_id).execute()
+    else:
+        if SAVED_FILE.exists():
+            all_comps = json.loads(SAVED_FILE.read_text())
+            if isinstance(all_comps, list):
+                all_comps = {"Ca'Mugo": all_comps}
+            comps = all_comps.get(property_name, [])
+            all_comps[property_name] = [c for c in comps if c["listing_id"] != listing_id]
+            SAVED_FILE.write_text(json.dumps(all_comps, indent=2))
 
 
 # ── Fetch helper ──────────────────────────────────────────
@@ -444,17 +477,37 @@ bench = BENCHMARKS[bench_name]
 
 # ── Refresh benchmark data ────────────────────────────────
 
-def _load_refresh_times() -> dict:
+def _load_refresh_time(prop_name: str) -> str | None:
+    db = _get_db()
+    if db:
+        resp = db.table("refresh_log").select("last_refresh").eq("property_name", prop_name).execute()
+        if resp.data:
+            ts = resp.data[0]["last_refresh"]
+            try:
+                dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                return dt.strftime("%d/%m/%Y %H:%M")
+            except Exception:
+                return ts
+    # Fallback to file
     if REFRESH_FILE.exists():
-        return json.loads(REFRESH_FILE.read_text())
-    return {}
+        return json.loads(REFRESH_FILE.read_text()).get(prop_name)
+    return None
 
 def _save_refresh_time(prop_name: str):
-    data = _load_refresh_times()
-    data[prop_name] = datetime.now().strftime("%d/%m/%Y %H:%M")
-    REFRESH_FILE.write_text(json.dumps(data))
+    db = _get_db()
+    if db:
+        db.table("refresh_log").upsert({
+            "property_name": prop_name,
+            "last_refresh": datetime.utcnow().isoformat(),
+        }, on_conflict="property_name").execute()
+    else:
+        data = {}
+        if REFRESH_FILE.exists():
+            data = json.loads(REFRESH_FILE.read_text())
+        data[prop_name] = datetime.now().strftime("%d/%m/%Y %H:%M")
+        REFRESH_FILE.write_text(json.dumps(data))
 
-last_refresh = _load_refresh_times().get(bench_name)
+last_refresh = _load_refresh_time(bench_name)
 
 col_refresh, col_ts = st.columns([1, 4])
 with col_refresh:

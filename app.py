@@ -152,29 +152,42 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# ── Saved competitors ──────────────────────────────────────
+# ── Saved competitors (per-property) ──────────────────────
 
-def _load_saved() -> list[dict]:
+def _load_all_saved() -> dict[str, list[dict]]:
+    """Load saved competitors dict keyed by property name."""
     if SAVED_FILE.exists():
-        return json.loads(SAVED_FILE.read_text())
-    return []
+        data = json.loads(SAVED_FILE.read_text())
+        # Migrate from old flat list format
+        if isinstance(data, list):
+            return {"Ca'Mugo": data}
+        return data
+    return {}
 
 
-def _save_competitors(comps: list[dict]):
-    SAVED_FILE.write_text(json.dumps(comps, indent=2))
+def _load_saved(property_name: str) -> list[dict]:
+    return _load_all_saved().get(property_name, [])
 
 
-def _add_competitor(name: str, url: str):
-    comps = _load_saved()
+def _save_all(all_comps: dict[str, list[dict]]):
+    SAVED_FILE.write_text(json.dumps(all_comps, indent=2))
+
+
+def _add_competitor(property_name: str, name: str, url: str):
+    all_comps = _load_all_saved()
+    comps = all_comps.get(property_name, [])
     listing_id = extract_listing_id(url)
     if not any(c["listing_id"] == listing_id for c in comps):
         comps.append({"name": name, "url": url, "listing_id": listing_id})
-        _save_competitors(comps)
+        all_comps[property_name] = comps
+        _save_all(all_comps)
 
 
-def _remove_competitor(listing_id: str):
-    comps = [c for c in _load_saved() if c["listing_id"] != listing_id]
-    _save_competitors(comps)
+def _remove_competitor(property_name: str, listing_id: str):
+    all_comps = _load_all_saved()
+    comps = all_comps.get(property_name, [])
+    all_comps[property_name] = [c for c in comps if c["listing_id"] != listing_id]
+    _save_all(all_comps)
 
 
 # ── Header ─────────────────────────────────────────────────
@@ -204,7 +217,7 @@ st.divider()
 
 # ── Competitor selection ───────────────────────────────────
 
-saved = _load_saved()
+saved = _load_saved(bench_name)
 
 tab_saved, tab_new, tab_manage = st.tabs(["Salvati", "Nuovo URL", "Gestisci"])
 
@@ -242,7 +255,7 @@ with tab_new:
                 try:
                     lid = extract_listing_id(new_url)
                     label = new_name or f"Listing {lid}"
-                    _add_competitor(label, new_url)
+                    _add_competitor(bench_name, label, new_url)
                     st.success(f"Salvato: {label}")
                     st.rerun()
                 except ValueError as e:
@@ -263,7 +276,7 @@ with tab_manage:
                 )
             with col_del:
                 if st.button("Rimuovi", key=f"del_{c['listing_id']}", type="secondary"):
-                    _remove_competitor(c["listing_id"])
+                    _remove_competitor(bench_name, c["listing_id"])
                     st.rerun()
     else:
         st.markdown('<p style="color:#9ca3af;font-size:14px;padding:16px 0;">Lista vuota.</p>', unsafe_allow_html=True)

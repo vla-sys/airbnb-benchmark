@@ -1,7 +1,10 @@
-[
-  {
-    "name": "Tatiana",
-    "url": "https://www.airbnb.com/rooms/31351271?adults=4&search_mode=regular_search&amenities%5B0%5D=9&amenities%5B1%5D=4&source_impression_id=p3_1774517224_P3GqKZL6ThZcHMea&previous_page_section_name=1000&federated_search_id=bb5639cb-0ec0-4c1f-857e-d13ea35aa305&guests=4&check_in=2026-05-11&check_out=2026-05-15",
-    "listing_id": "31351271"
-  }
-]
+{
+  "Ca'Mugo": [
+    {
+      "name": "Tatiana",
+      "url": "https://www.airbnb.com/rooms/31351271",
+      "listing_id": "31351271"
+    }
+  ],
+  "Ca'Mirto": []
+}

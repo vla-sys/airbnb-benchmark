@@ -585,7 +585,7 @@ if go:
 
 # ── Display results ────────────────────────────────────────
 
-if "bench" not in st.session_state:
+if "bench" not in st.session_state or "comp" not in st.session_state:
     st.stop()
 
 bench_data = st.session_state["bench"]

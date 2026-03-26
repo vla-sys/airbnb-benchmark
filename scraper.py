@@ -348,12 +348,20 @@ def interpolate_daily_prices(calendar_days: list[dict], priced_windows: list[dic
         day_copy["nightly_price"] = price_map.get(day["date"])
         enriched.append(day_copy)
 
-    # Forward/backward fill for gaps
+    # Forward fill for gaps (including unavailable days — show estimated price)
     last_price = None
     for day in enriched:
         if day["nightly_price"] is not None:
             last_price = day["nightly_price"]
-        elif last_price is not None and day["available"]:
+        elif last_price is not None:
+            day["nightly_price"] = last_price
+
+    # Backward fill for days before first priced window
+    last_price = None
+    for day in reversed(enriched):
+        if day["nightly_price"] is not None:
+            last_price = day["nightly_price"]
+        elif last_price is not None:
             day["nightly_price"] = last_price
 
     return enriched

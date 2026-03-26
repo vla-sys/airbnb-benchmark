@@ -52,6 +52,57 @@ st.set_page_config(
     menu_items={},
 )
 
+# ── Auth gate ─────────────────────────────────────────────
+
+def _check_password() -> bool:
+    """Simple password gate using st.secrets or env fallback."""
+    import os
+    correct_pw = st.secrets.get("password", os.environ.get("APP_PASSWORD", ""))
+    if not correct_pw:
+        return True  # No password configured → open access
+
+    if st.session_state.get("authenticated"):
+        return True
+
+    st.markdown("""
+    <style>
+        #MainMenu, footer, header, [data-testid="stSidebarCollapsedControl"],
+        [data-testid="stDeployButton"], [data-testid="stToolbar"] {display:none !important;}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        html, body, [class*="css"] {font-family:'Inter',sans-serif;}
+        .stApp {background:#0f172a;}
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
+        <div style="text-align:center;">
+            <div style="font-size:48px;font-weight:900;color:#fff;letter-spacing:-0.04em;margin-bottom:4px;">
+                Airbnb <span style="background:linear-gradient(90deg,#a5b4fc,#c4b5fd);
+                -webkit-background-clip:text;-webkit-text-fill-color:transparent;">Benchmark</span>
+            </div>
+            <div style="font-size:14px;color:rgba(255,255,255,0.35);margin-bottom:40px;">
+                Inserisci la password per accedere
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        pw = st.text_input("Password", type="password", label_visibility="collapsed", placeholder="Password")
+        if st.button("Accedi", type="primary", use_container_width=True):
+            if pw == correct_pw:
+                st.session_state["authenticated"] = True
+                st.rerun()
+            else:
+                st.error("Password errata.")
+    return False
+
+
+if not _check_password():
+    st.stop()
+
 # ── Premium CSS — Dark hero + Glass + Animations ──────────
 
 st.markdown("""

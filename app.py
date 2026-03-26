@@ -463,13 +463,21 @@ with col_ts:
         )
 
 if refresh_bench:
-    with st.spinner(f"Aggiornamento dati {bench_name}..."):
-        bench_data = _fetch_property(bench["listing_id"], 10, st.session_state.get("months_ahead", 4))
+    months = st.session_state.get("_months_ahead", 4)
+    n_calls = 10
+    with st.spinner(f"Aggiornamento {bench_name}..."):
+        bench_data = _fetch_property(bench["listing_id"], n_calls, months)
         st.session_state["bench"] = bench_data
         st.session_state["bench_name"] = bench_name
-        now_str = datetime.now().strftime("%d/%m/%Y %H:%M")
-        st.session_state[last_refresh_key] = now_str
-        st.rerun()
+    # Also refresh competitor if one was loaded before
+    comp_id = st.session_state.get("comp_id")
+    if comp_id:
+        with st.spinner("Aggiornamento competitor..."):
+            comp_data = _fetch_property(comp_id, n_calls, months)
+            st.session_state["comp"] = comp_data
+    now_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+    st.session_state[last_refresh_key] = now_str
+    st.rerun()
 
 st.divider()
 
@@ -549,6 +557,7 @@ with col_months:
         "Mesi in avanti",
         options=list(range(1, 13)),
         value=4,
+        key="_months_ahead",
         help="Quanti mesi di calendario analizzare (1-12)",
     )
 with col_slider:

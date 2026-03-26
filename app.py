@@ -58,227 +58,259 @@ st.markdown("""
 <style>
     /* ── Reset ── */
     #MainMenu, footer, header, [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stDeployButton"] {display:none !important;}
+    [data-testid="stDeployButton"], [data-testid="stToolbar"] {display:none !important;}
 
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     html, body, [class*="css"] {font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;}
     html {scroll-behavior:smooth;}
+    .stApp {background:#f8f9fb;}
 
-    .block-container {max-width:1200px; padding:0 2rem 4rem;}
+    .block-container {max-width:1100px; padding:0 2rem 6rem;}
 
     /* ── Fade-in animation ── */
     @keyframes fadeInUp {
-        from {opacity:0; transform:translateY(16px);}
+        from {opacity:0; transform:translateY(20px);}
         to {opacity:1; transform:translateY(0);}
     }
-    .fade-in {animation:fadeInUp 0.5s ease-out both;}
-    .fade-in-d1 {animation-delay:0.08s;}
-    .fade-in-d2 {animation-delay:0.16s;}
-    .fade-in-d3 {animation-delay:0.24s;}
-    .fade-in-d4 {animation-delay:0.32s;}
-
-    /* ── Glass card ── */
-    .glass {
-        background:rgba(255,255,255,0.7);
-        backdrop-filter:blur(20px);
-        -webkit-backdrop-filter:blur(20px);
-        border:1px solid rgba(255,255,255,0.3);
-        border-radius:20px;
-        box-shadow:0 4px 30px rgba(0,0,0,0.04);
+    @keyframes shimmer {
+        0% {background-position:200% 0;}
+        100% {background-position:-200% 0;}
     }
+    @keyframes gradientShift {
+        0%,100% {background-position:0% 50%;}
+        50% {background-position:100% 50%;}
+    }
+    .fade-in {animation:fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) both;}
+    .fade-in-d1 {animation-delay:0.1s;}
+    .fade-in-d2 {animation-delay:0.2s;}
+    .fade-in-d3 {animation-delay:0.3s;}
+    .fade-in-d4 {animation-delay:0.4s;}
 
-    /* ── Metric cards (Streamlit overrides) ── */
+    /* ── Metric cards ── */
     [data-testid="stMetric"] {
-        background:rgba(255,255,255,0.85);
-        backdrop-filter:blur(12px);
-        border:1px solid rgba(0,0,0,0.04);
+        background:#fff;
+        border:1px solid #eef0f4;
         border-radius:20px;
-        padding:24px 28px;
-        box-shadow:0 1px 3px rgba(0,0,0,0.02), 0 8px 32px rgba(0,0,0,0.03);
-        transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+        padding:28px 28px 24px;
+        box-shadow:0 1px 2px rgba(0,0,0,0.02), 0 4px 16px rgba(0,0,0,0.02);
+        transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
     }
     [data-testid="stMetric"]:hover {
-        box-shadow:0 2px 8px rgba(0,0,0,0.04), 0 16px 48px rgba(0,0,0,0.06);
-        transform:translateY(-2px);
+        box-shadow:0 4px 20px rgba(0,0,0,0.06);
+        transform:translateY(-3px);
     }
     [data-testid="stMetric"] label {
-        font-size:10px !important; font-weight:700 !important; color:#94a3b8 !important;
-        text-transform:uppercase; letter-spacing:0.12em;
+        font-size:10px !important; font-weight:700 !important; color:#9ca3af !important;
+        text-transform:uppercase; letter-spacing:0.14em;
     }
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        font-size:36px !important; font-weight:900 !important; color:#0f172a !important;
-        letter-spacing:-0.03em;
+        font-size:32px !important; font-weight:900 !important; color:#111827 !important;
+        letter-spacing:-0.04em;
     }
-    [data-testid="stMetric"] [data-testid="stMetricDelta"] {font-size:13px !important; font-weight:600 !important;}
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {font-size:13px !important; font-weight:700 !important;}
 
     /* ── Tabs ── */
-    .stTabs [data-baseweb="tab-list"] {gap:0; border-bottom:2px solid #f1f5f9; background:transparent;}
+    .stTabs [data-baseweb="tab-list"] {
+        gap:4px; border-bottom:none; background:#f1f3f5; padding:4px;
+        border-radius:14px; width:fit-content;
+    }
     .stTabs [data-baseweb="tab"] {
-        font-weight:500; font-size:13px; color:#94a3b8;
-        padding:10px 20px; border-bottom:2px solid transparent;
-        margin-bottom:-2px; transition:all 0.2s;
+        font-weight:600; font-size:13px; color:#6b7280;
+        padding:8px 20px; border-bottom:none; border-radius:10px;
+        transition:all 0.2s;
     }
     .stTabs [aria-selected="true"] {
-        color:#0f172a !important; border-bottom-color:#0f172a !important; font-weight:700;
+        color:#111827 !important; background:#fff !important;
+        box-shadow:0 1px 3px rgba(0,0,0,0.08) !important;
+        border-bottom-color:transparent !important;
     }
 
     /* ── Buttons ── */
     .stButton > button[kind="primary"] {
-        background:#0f172a; color:#fff; border:none; border-radius:14px;
-        padding:14px 36px; font-weight:700; font-size:14px;
+        background:linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        color:#fff; border:none; border-radius:14px;
+        padding:14px 40px; font-weight:700; font-size:14px;
         letter-spacing:0.01em;
-        box-shadow:0 2px 8px rgba(15,23,42,0.15), 0 8px 32px rgba(15,23,42,0.1);
-        transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
+        box-shadow:0 4px 14px rgba(17,24,39,0.25);
+        transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
     }
     .stButton > button[kind="primary"]:hover {
-        background:#1e293b;
-        box-shadow:0 4px 12px rgba(15,23,42,0.2), 0 16px 48px rgba(15,23,42,0.15);
         transform:translateY(-2px);
+        box-shadow:0 8px 28px rgba(17,24,39,0.3);
     }
     .stButton > button[kind="secondary"] {
-        border-radius:12px; border:1.5px solid #e2e8f0 !important;
-        font-weight:600; font-size:13px; transition:all 0.15s;
+        border-radius:12px; border:1.5px solid #e5e7eb !important;
+        font-weight:600; font-size:13px; transition:all 0.2s;
     }
     .stButton > button[kind="secondary"]:hover {
-        border-color:#cbd5e1 !important; background:#f8fafc !important;
+        border-color:#d1d5db !important; background:#f9fafb !important;
+        transform:translateY(-1px);
     }
 
     /* ── Inputs ── */
     .stTextInput > div > div > input,
     .stSelectbox > div > div > div {
-        border-radius:14px !important; border:1.5px solid #e2e8f0 !important;
-        font-size:14px !important; transition:all 0.2s; background:#fff !important;
+        border-radius:14px !important; border:1.5px solid #e5e7eb !important;
+        font-size:14px !important; transition:all 0.25s; background:#fff !important;
     }
     .stTextInput > div > div > input:focus {
         border-color:#6366f1 !important;
-        box-shadow:0 0 0 3px rgba(99,102,241,0.08) !important;
+        box-shadow:0 0 0 4px rgba(99,102,241,0.06) !important;
     }
 
     /* ── Slider ── */
-    .stSlider > div > div > div > div {background:#0f172a !important;}
+    .stSlider > div > div > div > div {background:linear-gradient(90deg,#6366f1,#8b5cf6) !important; height:4px !important;}
     .stSlider [data-baseweb="thumb"] {
-        background:#0f172a !important; border:3px solid #fff !important;
-        box-shadow:0 2px 8px rgba(0,0,0,0.15);
+        background:#fff !important; border:2.5px solid #6366f1 !important;
+        box-shadow:0 2px 8px rgba(99,102,241,0.25); width:18px !important; height:18px !important;
     }
 
     /* ── Divider ── */
-    hr {border:none; height:1px; background:linear-gradient(90deg, transparent, #e2e8f0, transparent); margin:40px 0;}
+    hr {border:none; height:1px; background:linear-gradient(90deg, transparent, #e5e7eb, transparent); margin:48px 0;}
 
     /* ── Hero section ── */
     .hero {
-        background:linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        background:linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #312e81 70%, #4338ca 100%);
+        background-size:300% 300%;
+        animation:gradientShift 8s ease infinite;
         border-radius:28px;
-        padding:48px 56px;
-        margin:0 0 40px;
+        padding:56px 60px 48px;
+        margin:0 0 48px;
         position:relative;
         overflow:hidden;
     }
     .hero::before {
         content:'';
-        position:absolute;
-        top:-50%; right:-20%;
-        width:600px; height:600px;
-        background:radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+        position:absolute; inset:0;
+        background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         pointer-events:none;
     }
     .hero::after {
         content:'';
         position:absolute;
-        bottom:-30%; left:-10%;
-        width:400px; height:400px;
-        background:radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+        bottom:-60%; right:-20%;
+        width:500px; height:500px;
+        background:radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
         pointer-events:none;
     }
     .hero h1 {
-        margin:0 0 8px; font-size:44px; font-weight:900; color:#fff;
-        letter-spacing:-0.04em; line-height:1.1; position:relative;
+        margin:0 0 10px; font-size:48px; font-weight:900; color:#fff;
+        letter-spacing:-0.045em; line-height:1.05; position:relative;
+    }
+    .hero h1 span {
+        background:linear-gradient(90deg, #a5b4fc, #c4b5fd, #a5b4fc);
+        background-size:200% auto;
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+        background-clip:text;
+        animation:shimmer 3s linear infinite;
     }
     .hero p {
-        margin:0; font-size:16px; color:#94a3b8; font-weight:400;
-        letter-spacing:-0.01em; position:relative;
+        margin:0; font-size:16px; color:rgba(255,255,255,0.55); font-weight:400;
+        letter-spacing:-0.01em; position:relative; max-width:480px;
     }
     .hero-badge {
-        display:inline-flex; align-items:center; gap:6px;
-        padding:6px 14px; border-radius:100px;
-        background:rgba(255,255,255,0.08);
-        border:1px solid rgba(255,255,255,0.06);
-        font-size:12px; font-weight:600; color:#cbd5e1;
-        letter-spacing:0.02em; margin-top:16px; position:relative;
+        display:inline-flex; align-items:center; gap:7px;
+        padding:7px 16px; border-radius:100px;
+        background:rgba(255,255,255,0.06);
+        border:1px solid rgba(255,255,255,0.08);
+        font-size:12px; font-weight:600; color:rgba(255,255,255,0.5);
+        letter-spacing:0.03em; margin-top:20px; position:relative;
+        backdrop-filter:blur(8px);
     }
-    .hero-badge .dot {width:6px;height:6px;border-radius:50%;background:#10b981;animation:pulse 2s infinite;}
+    .hero-badge .dot {width:6px;height:6px;border-radius:50%;background:#34d399;animation:pulse 2s infinite;}
     @keyframes pulse {
-        0%,100% {opacity:1;}
-        50% {opacity:0.4;}
+        0%,100% {opacity:1; box-shadow:0 0 0 0 rgba(52,211,153,0.4);}
+        50% {opacity:0.6; box-shadow:0 0 0 6px rgba(52,211,153,0);}
     }
 
     /* ── Section headers ── */
     .section-title {
-        font-size:20px; font-weight:800; color:#0f172a; letter-spacing:-0.03em;
-        margin:40px 0 20px; display:flex; align-items:center; gap:10px;
+        font-size:18px; font-weight:800; color:#111827; letter-spacing:-0.03em;
+        margin:48px 0 24px; display:flex; align-items:center; gap:12px;
     }
-    .section-title .line {flex:1; height:1px; background:#e2e8f0;}
+    .section-title .icon {font-size:14px; opacity:0.5;}
+    .section-title .line {flex:1; height:1px; background:linear-gradient(90deg, #e5e7eb, transparent);}
 
     /* ── Calendar ── */
     .cal-wrap {
-        background:#fff; border-radius:24px; padding:32px;
-        border:1px solid #f1f5f9;
-        box-shadow:0 1px 3px rgba(0,0,0,0.02), 0 8px 32px rgba(0,0,0,0.02);
-        margin-bottom:24px;
+        background:#fff; border-radius:24px; padding:36px;
+        border:1px solid #eef0f4;
+        box-shadow:0 1px 2px rgba(0,0,0,0.02), 0 4px 16px rgba(0,0,0,0.02);
+        margin-bottom:28px;
     }
     .cal-month-title {
-        font-size:22px; font-weight:800; color:#0f172a;
-        letter-spacing:-0.03em; margin-bottom:20px;
+        font-size:24px; font-weight:900; color:#111827;
+        letter-spacing:-0.04em; margin-bottom:24px;
     }
-    .cal-table {border-collapse:separate; border-spacing:5px; width:100%; text-align:center; font-family:Inter,sans-serif;}
+    .cal-month-title span {font-weight:400; color:#9ca3af;}
+    .cal-table {border-collapse:separate; border-spacing:4px; width:100%; text-align:center; font-family:Inter,sans-serif;}
     .cal-table th {
-        padding:10px 4px; font-size:9px; font-weight:800; color:#94a3b8;
-        text-transform:uppercase; letter-spacing:0.14em;
+        padding:12px 4px; font-size:9px; font-weight:800; color:#9ca3af;
+        text-transform:uppercase; letter-spacing:0.16em;
     }
     .cal-table td {
-        padding:10px 6px; border-radius:14px; vertical-align:top; min-width:100px;
-        background:#f8fafc; border:1.5px solid #f1f5f9;
-        transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
+        padding:10px 6px; border-radius:16px; vertical-align:top; min-width:100px;
+        background:#f9fafb; border:1.5px solid #f3f4f6;
+        transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
     }
     .cal-table td:hover {
-        background:#fff; border-color:#e2e8f0;
-        box-shadow:0 2px 12px rgba(0,0,0,0.04);
-        transform:translateY(-1px);
+        background:#fff; border-color:#e5e7eb;
+        box-shadow:0 4px 16px rgba(0,0,0,0.05);
+        transform:translateY(-2px);
     }
-    .cal-day-num {font-weight:800; font-size:15px; color:#334155; margin-bottom:6px; letter-spacing:-0.02em;}
-    .cal-past {color:#cbd5e1 !important; font-weight:400;}
+    .cal-day-num {font-weight:900; font-size:16px; color:#374151; margin-bottom:6px; letter-spacing:-0.02em;}
+    .cal-past {color:#d1d5db !important; font-weight:400;}
     .cal-bench {font-weight:800; font-size:12px; letter-spacing:-0.01em;}
     .cal-comp {font-weight:800; font-size:12px; letter-spacing:-0.01em;}
-    .cal-min {font-size:9px; font-weight:600; opacity:0.5; margin-left:1px;}
+    .cal-min {font-size:8px; font-weight:700; opacity:0.45; margin-left:2px;}
     .cal-booked {
-        font-size:8px; font-weight:800; letter-spacing:0.08em;
-        text-transform:uppercase; padding:2px 6px; border-radius:4px;
-        display:inline-block; margin-top:1px;
+        font-size:7px; font-weight:800; letter-spacing:0.1em;
+        text-transform:uppercase; padding:2px 7px; border-radius:5px;
+        display:inline-block; margin-top:2px;
     }
     .cal-cheaper-bench {background:#ecfdf5 !important; border-color:#a7f3d0 !important;}
     .cal-cheaper-comp {background:#fff1f2 !important; border-color:#fecdd3 !important;}
-    .cal-same {background:#f8fafc !important; border-color:#e2e8f0 !important;}
-    .cal-today {border-color:#6366f1 !important; border-width:2px !important;}
+    .cal-same {background:#f9fafb !important; border-color:#f3f4f6 !important;}
+    .cal-today {border-color:#6366f1 !important; border-width:2.5px !important; box-shadow:0 0 0 3px rgba(99,102,241,0.08);}
 
     /* ── Legend bar ── */
     .legend-bar {
-        display:flex; flex-wrap:wrap; gap:16px; align-items:center;
-        padding:14px 20px; border-radius:16px;
-        background:#f8fafc; border:1px solid #f1f5f9;
-        font-size:12px; font-weight:500; color:#64748b;
-        margin-bottom:24px;
+        display:flex; flex-wrap:wrap; gap:20px; align-items:center;
+        padding:16px 24px; border-radius:16px;
+        background:#fff; border:1px solid #eef0f4;
+        font-size:12px; font-weight:600; color:#6b7280;
+        margin-bottom:28px;
+        box-shadow:0 1px 2px rgba(0,0,0,0.02);
     }
-    .legend-dot {width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;}
+    .legend-dot {width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
     .legend-tag {
-        padding:3px 10px; border-radius:8px; font-size:11px; font-weight:700;
+        padding:4px 12px; border-radius:8px; font-size:11px; font-weight:700;
         letter-spacing:0.02em;
     }
 
     /* ── Dataframe ── */
     .stDataFrame {border-radius:16px !important; overflow:hidden;}
-    .stDataFrame [data-testid="stDataFrameResizable"] {border-radius:16px; border:1px solid #f1f5f9;}
+    .stDataFrame [data-testid="stDataFrameResizable"] {border-radius:16px; border:1px solid #eef0f4;}
 
     /* ── Progress bar ── */
-    .stProgress > div > div > div {background:#6366f1 !important; border-radius:100px;}
+    .stProgress > div > div > div {
+        background:linear-gradient(90deg,#6366f1,#8b5cf6) !important;
+        border-radius:100px;
+    }
+
+    /* ── Property selector card ── */
+    .prop-card {
+        background:#fff; border:1px solid #eef0f4; border-radius:20px;
+        padding:24px 28px; margin-bottom:8px;
+        box-shadow:0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    /* ── Footer ── */
+    .app-footer {
+        text-align:center; padding:64px 0 0;
+        font-size:11px; font-weight:500; color:#d1d5db;
+        letter-spacing:0.04em; text-transform:uppercase;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -323,11 +355,11 @@ def _remove_competitor(property_name: str, listing_id: str):
 
 st.markdown("""
 <div class="hero fade-in">
-    <h1>Airbnb Benchmark</h1>
-    <p>Confronta i prezzi delle tue property con i competitor nei prossimi 120 giorni</p>
+    <h1>Airbnb<br><span>Benchmark</span></h1>
+    <p>Confronta prezzi e disponibilità delle tue property con i competitor — dati aggiornati in tempo reale.</p>
     <div class="hero-badge">
         <span class="dot"></span>
-        Dati in tempo reale via Airbnb API
+        Live via Airbnb API
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -540,7 +572,7 @@ for (year, month), _ in sorted(months_set.items()):
     month_name = cal_mod.month_name[month]
 
     html = f'<div class="cal-wrap fade-in">'
-    html += f'<div class="cal-month-title">{month_name} {year}</div>'
+    html += f'<div class="cal-month-title">{month_name} <span>{year}</span></div>'
 
     weeks = cal_mod.monthcalendar(year, month)
 
@@ -673,8 +705,7 @@ with col2:
 # ── Footer ─────────────────────────────────────────────────
 
 st.markdown("""
-<div style="text-align:center;padding:48px 0 0;font-size:11px;font-weight:500;color:#cbd5e1;
-            letter-spacing:0.02em;">
-    Airbnb Benchmark · Dati via Airbnb Internal API · Prezzi in EUR
+<div class="app-footer">
+    Airbnb Benchmark &nbsp;·&nbsp; Dati via Airbnb Internal API &nbsp;·&nbsp; Prezzi in EUR
 </div>
 """, unsafe_allow_html=True)

@@ -1,4 +1,4 @@
-"""Airbnb Pricing Calendar — Benchmark vs Competitor"""
+"""Airbnb Pricing Benchmark — Ca'Mugo & Ca'Mirto vs Competitors"""
 
 import calendar as cal_mod
 import json
@@ -18,9 +18,19 @@ from scraper import (
 
 # ── Config ─────────────────────────────────────────────────
 
-BENCHMARK = {
-    "name": "Ca'Mugo",
-    "listing_id": "1363939812329907610",
+BENCHMARKS = {
+    "Ca'Mugo": {
+        "listing_id": "1363939812329907610",
+        "icon": "🏔️",
+        "color": "#2563eb",
+        "location": "Borca di Cadore, Dolomiti",
+    },
+    "Ca'Mirto": {
+        "listing_id": "12323106",
+        "icon": "🏖️",
+        "color": "#059669",
+        "location": "San Teodoro, Sardegna",
+    },
 }
 
 SAVED_FILE = Path(__file__).parent / "saved_competitors.json"
@@ -35,94 +45,109 @@ st.set_page_config(
     menu_items={},
 )
 
-# Hide default menu, footer, and sidebar toggle
+# ── Premium CSS ────────────────────────────────────────────
+
 st.markdown("""
 <style>
-    /* Hide hamburger menu and footer */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    [data-testid="stSidebarCollapsedControl"] {display: none;}
+    /* ── Reset & Base ── */
+    #MainMenu, footer, header, [data-testid="stSidebarCollapsedControl"] {display:none !important;}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    html, body, [class*="css"] {font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;}
+    html {scroll-behavior:smooth;}
 
-    /* Import fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* ── Container max-width for breathing room ── */
+    .block-container {max-width:1100px; padding:2rem 2rem 4rem;}
 
-    /* Global font */
-    html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    /* Smooth scrolling */
-    html { scroll-behavior: smooth; }
-
-    /* Custom metric cards */
+    /* ── Metric cards ── */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 16px 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        background:#fff;
+        border:1px solid #e5e7eb;
+        border-radius:16px;
+        padding:20px 24px;
+        box-shadow:0 1px 2px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.02);
+        transition:box-shadow 0.2s, transform 0.2s;
+    }
+    [data-testid="stMetric"]:hover {
+        box-shadow:0 2px 4px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+        transform:translateY(-1px);
     }
     [data-testid="stMetric"] label {
-        font-size: 12px !important;
-        font-weight: 500 !important;
-        color: #64748b !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-size:11px !important; font-weight:600 !important; color:#9ca3af !important;
+        text-transform:uppercase; letter-spacing:0.08em;
     }
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        font-size: 28px !important;
-        font-weight: 700 !important;
-        color: #1e293b !important;
+        font-size:32px !important; font-weight:800 !important; color:#111827 !important;
+    }
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {font-size:13px !important;}
+
+    /* ── Tabs ── */
+    .stTabs [data-baseweb="tab-list"] {gap:0; border-bottom:2px solid #f3f4f6;}
+    .stTabs [data-baseweb="tab"] {
+        font-weight:500; font-size:14px; color:#6b7280;
+        padding:12px 24px; border-bottom:2px solid transparent;
+        margin-bottom:-2px; transition:all 0.15s;
+    }
+    .stTabs [aria-selected="true"] {
+        color:#111827 !important; border-bottom-color:#111827 !important; font-weight:600;
     }
 
-    /* Button styling */
+    /* ── Primary button ── */
     .stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-        border: none;
-        border-radius: 10px;
-        padding: 12px 28px;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        box-shadow: 0 2px 8px rgba(37,99,235,0.3);
-        transition: all 0.2s ease;
+        background:#111827; color:#fff; border:none; border-radius:12px;
+        padding:14px 32px; font-weight:600; font-size:15px;
+        letter-spacing:-0.01em; box-shadow:0 1px 3px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.08);
+        transition:all 0.15s;
     }
     .stButton > button[kind="primary"]:hover {
-        box-shadow: 0 4px 16px rgba(37,99,235,0.4);
-        transform: translateY(-1px);
+        background:#1f2937; box-shadow:0 2px 6px rgba(0,0,0,0.12), 0 8px 24px rgba(0,0,0,0.1);
+        transform:translateY(-1px);
     }
 
-    /* Input styling */
-    .stTextInput > div > div > input {
-        border-radius: 10px;
-        border: 2px solid #e2e8f0;
-        padding: 12px 16px;
-        font-size: 15px;
-        transition: border-color 0.2s;
+    /* ── Inputs ── */
+    .stTextInput > div > div > input,
+    .stSelectbox > div > div > div {
+        border-radius:12px !important; border:1.5px solid #e5e7eb !important;
+        font-size:14px !important; transition:border-color 0.15s;
     }
     .stTextInput > div > div > input:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        border-color:#111827 !important; box-shadow:0 0 0 3px rgba(17,24,39,0.06) !important;
     }
 
-    /* Selectbox styling */
-    .stSelectbox > div > div {
-        border-radius: 10px;
+    /* ── Slider ── */
+    .stSlider > div > div > div > div {background:#111827 !important;}
+    .stSlider [data-baseweb="thumb"] {background:#111827 !important; border:3px solid #fff !important; box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+
+    /* ── Divider ── */
+    hr {border:none; height:1px; background:#f3f4f6; margin:32px 0;}
+
+    /* ── Custom classes ── */
+    .header-badge {
+        display:inline-flex; align-items:center; gap:6px;
+        padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;
+        letter-spacing:0.02em;
+    }
+    .month-header {
+        font-size:18px; font-weight:700; color:#111827; letter-spacing:-0.02em;
+        margin:32px 0 16px; padding-bottom:8px; border-bottom:2px solid #f3f4f6;
     }
 
-    /* Divider */
-    hr {
-        border: none;
-        height: 1px;
-        background: linear-gradient(to right, transparent, #e2e8f0, transparent);
-        margin: 24px 0;
+    /* ── Calendar table ── */
+    .cal-table {border-collapse:separate; border-spacing:4px; width:100%; text-align:center; font-family:Inter,sans-serif;}
+    .cal-table th {padding:8px 4px; font-size:10px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.1em;}
+    .cal-table td {
+        padding:8px 4px; border-radius:10px; vertical-align:top; min-width:90px;
+        border:1px solid #f3f4f6; background:#fff; transition:background 0.15s;
     }
-
-    /* Dataframe styling */
-    .stDataFrame {
-        border-radius: 12px;
-        overflow: hidden;
-    }
+    .cal-table td:hover {background:#fafafa;}
+    .cal-day-num {font-weight:700; font-size:14px; color:#374151; margin-bottom:4px;}
+    .cal-past {color:#d1d5db !important; font-weight:400;}
+    .cal-bench {font-weight:700; font-size:11px;}
+    .cal-comp {font-weight:700; font-size:11px; color:#dc2626;}
+    .cal-min {font-size:9px; font-weight:500; opacity:0.6;}
+    .cal-booked {font-size:9px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;}
+    .cal-cheaper-bench {background:#f0fdf4 !important; border-color:#bbf7d0 !important;}
+    .cal-cheaper-comp {background:#fef2f2 !important; border-color:#fecaca !important;}
+    .cal-same {background:#fafafa !important; border-color:#e5e7eb !important;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -155,53 +180,64 @@ def _remove_competitor(listing_id: str):
 # ── Header ─────────────────────────────────────────────────
 
 st.markdown("""
-<div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
-    <div style="background:linear-gradient(135deg,#2563eb,#7c3aed);width:48px;height:48px;
-                border-radius:12px;display:flex;align-items:center;justify-content:center;
-                font-size:24px;box-shadow:0 4px 12px rgba(37,99,235,0.3);">📊</div>
-    <div>
-        <h1 style="margin:0;font-size:32px;font-weight:700;color:#1e293b;letter-spacing:-0.02em;">
-            Airbnb Benchmark</h1>
-        <p style="margin:0;font-size:15px;color:#64748b;">
-            Confronta <strong style="color:#2563eb;">Ca'Mugo</strong> con i competitor — prezzi, disponibilità e soggiorno minimo</p>
-    </div>
+<div style="margin-bottom:32px;">
+    <h1 style="margin:0 0 4px;font-size:36px;font-weight:800;color:#111827;letter-spacing:-0.03em;">
+        Airbnb Benchmark</h1>
+    <p style="margin:0;font-size:15px;color:#6b7280;font-weight:400;">
+        Confronta i prezzi delle tue property con i competitor — calendario 120 giorni</p>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+# ── Property selector ──────────────────────────────────────
+
+col_prop, col_spacer = st.columns([2, 3])
+with col_prop:
+    bench_name = st.selectbox(
+        "La tua property",
+        list(BENCHMARKS.keys()),
+        format_func=lambda x: f"{BENCHMARKS[x]['icon']}  {x}  ·  {BENCHMARKS[x]['location']}",
+    )
+
+bench = BENCHMARKS[bench_name]
+
+st.divider()
 
 # ── Competitor selection ───────────────────────────────────
 
 saved = _load_saved()
 
-tab_saved, tab_new, tab_manage = st.tabs(["Competitor salvati", "Nuovo URL", "Gestisci lista"])
+tab_saved, tab_new, tab_manage = st.tabs(["Salvati", "Nuovo URL", "Gestisci"])
 
 with tab_saved:
     if saved:
-        options = {f"{c['name']}  —  {c['listing_id']}": c for c in saved}
+        options = {f"{c['name']}  ·  {c['listing_id']}": c for c in saved}
         selected_label = st.selectbox(
-            "Scegli un competitor salvato",
+            "Scegli competitor",
             list(options.keys()),
             label_visibility="collapsed",
         )
         selected_comp = options[selected_label]
         comp_url_to_use = selected_comp["url"]
     else:
-        st.info("Nessun competitor salvato. Usa la tab **Nuovo URL** per aggiungerne uno.")
+        st.markdown(
+            '<p style="color:#9ca3af;font-size:14px;padding:16px 0;">'
+            'Nessun competitor salvato. Aggiungi un URL nella tab <strong>Nuovo URL</strong>.</p>',
+            unsafe_allow_html=True,
+        )
         comp_url_to_use = None
 
 with tab_new:
     new_url = st.text_input(
-        "URL Airbnb del competitor",
+        "URL Airbnb",
         placeholder="https://www.airbnb.com/rooms/12345678",
         key="new_comp_url",
+        label_visibility="collapsed",
     )
-    col_name, col_save = st.columns([3, 1])
+    col_name, col_save = st.columns([4, 1])
     with col_name:
-        new_name = st.text_input("Nome (opzionale)", placeholder="Es: Chalet Cortina", key="new_comp_name")
+        new_name = st.text_input("Nome", placeholder="Es: Chalet Cortina", key="new_comp_name", label_visibility="collapsed")
     with col_save:
-        st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-        if st.button("💾 Salva", use_container_width=True):
+        if st.button("Salva", use_container_width=True):
             if new_url:
                 try:
                     lid = extract_listing_id(new_url)
@@ -217,26 +253,35 @@ with tab_new:
 with tab_manage:
     if saved:
         for c in saved:
-            col_info, col_del = st.columns([5, 1])
+            col_info, col_del = st.columns([6, 1])
             with col_info:
-                st.markdown(f"**{c['name']}** — `{c['listing_id']}`")
+                st.markdown(
+                    f'<div style="padding:8px 0;font-size:14px;">'
+                    f'<strong>{c["name"]}</strong>'
+                    f'<span style="color:#9ca3af;margin-left:8px;">ID {c["listing_id"]}</span></div>',
+                    unsafe_allow_html=True,
+                )
             with col_del:
-                if st.button("🗑️", key=f"del_{c['listing_id']}", help="Rimuovi"):
+                if st.button("Rimuovi", key=f"del_{c['listing_id']}", type="secondary"):
                     _remove_competitor(c["listing_id"])
                     st.rerun()
     else:
-        st.caption("Lista vuota.")
+        st.markdown('<p style="color:#9ca3af;font-size:14px;padding:16px 0;">Lista vuota.</p>', unsafe_allow_html=True)
 
-st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
 # ── Launch analysis ────────────────────────────────────────
 
-col_slider, col_btn = st.columns([3, 1])
+col_slider, col_btn = st.columns([4, 1])
 with col_slider:
-    max_price_calls = st.slider("Precisione prezzo", 5, 30, 10, help="Più alto = più preciso ma più lento")
+    max_price_calls = st.slider(
+        "Precisione prezzo",
+        5, 30, 10,
+        help="Più chiamate API = prezzi più precisi, ma più lento",
+    )
 with col_btn:
-    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-    go = st.button("🔍 Confronta", type="primary", use_container_width=True)
+    st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
+    go = st.button("Confronta", type="primary", use_container_width=True)
 
 # ── Fetch data ─────────────────────────────────────────────
 
@@ -263,15 +308,16 @@ if go:
         st.error(str(e))
         st.stop()
 
-    progress = st.progress(0, text="Scaricamento Ca'Mugo...")
-    bench_data = _fetch_property(BENCHMARK["listing_id"], max_price_calls)
+    progress = st.progress(0, text=f"Scaricamento {bench_name}...")
+    bench_data = _fetch_property(bench["listing_id"], max_price_calls)
     progress.progress(50, text="Scaricamento competitor...")
     comp_data = _fetch_property(comp_id, max_price_calls)
-    progress.progress(100, text="Analisi completata!")
+    progress.progress(100, text="Completato")
 
     st.session_state["bench"] = bench_data
     st.session_state["comp"] = comp_data
     st.session_state["comp_id"] = comp_id
+    st.session_state["bench_name"] = bench_name
 
 # ── Display results ────────────────────────────────────────
 
@@ -280,10 +326,14 @@ if "bench" not in st.session_state:
 
 bench_data = st.session_state["bench"]
 comp_data = st.session_state["comp"]
+active_bench = st.session_state.get("bench_name", bench_name)
+active_color = BENCHMARKS.get(active_bench, bench)["color"]
 
 bench_days = {d["date"]: d for d in bench_data["days"]}
 comp_days = {d["date"]: d for d in comp_data["days"]}
 all_dates = sorted(set(list(bench_days.keys()) + list(comp_days.keys())))
+
+st.divider()
 
 # ── Summary metrics ────────────────────────────────────────
 
@@ -294,34 +344,37 @@ comp_avg = sum(comp_prices) / len(comp_prices) if comp_prices else 0
 bench_avail = sum(1 for d in bench_data["days"] if d["available"])
 comp_avail = sum(1 for d in comp_data["days"] if d["available"])
 
-st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-
 c1, c2, c3, c4 = st.columns(4)
-c1.metric("Ca'Mugo /notte", f"€{bench_avg:.0f}" if bench_prices else "N/D")
-c2.metric("Competitor /notte", f"€{comp_avg:.0f}" if comp_prices else "N/D")
+c1.metric(f"{active_bench} media/notte", f"€{bench_avg:.0f}" if bench_prices else "N/D")
+c2.metric("Competitor media/notte", f"€{comp_avg:.0f}" if comp_prices else "N/D")
 if bench_prices and comp_prices:
     diff = bench_avg - comp_avg
     pct = (diff / comp_avg) * 100 if comp_avg else 0
-    c3.metric("Differenza", f"{pct:+.0f}%", delta=f"€{diff:+.0f}")
+    c3.metric("Delta prezzo", f"{pct:+.0f}%", delta=f"€{diff:+.0f}")
 else:
-    c3.metric("Differenza", "N/D")
-c4.metric("Disponibilità", f"{bench_avail} vs {comp_avail}")
+    c3.metric("Delta prezzo", "N/D")
+c4.metric("Giorni disponibili", f"{bench_avail} vs {comp_avail}")
 
 st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-# Legend
-st.markdown("""
-<div style="display:flex;gap:24px;align-items:center;padding:12px 16px;
-            background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;">
-    <span><strong style="color:#2563eb;">● Ca'Mugo</strong></span>
-    <span><strong style="color:#dc2626;">● Competitor</strong></span>
-    <span style="color:#64748b;">🔴 = occupato</span>
-    <span style="background:#dbeafe;padding:2px 8px;border-radius:4px;color:#1e40af;">Ca'Mugo più economico</span>
-    <span style="background:#fee2e2;padding:2px 8px;border-radius:4px;color:#991b1b;">Competitor più economico</span>
+# ── Legend ──────────────────────────────────────────────────
+
+st.markdown(f"""
+<div style="display:flex;gap:20px;align-items:center;padding:10px 16px;
+            background:#fafafa;border-radius:12px;font-size:12px;font-weight:500;color:#6b7280;">
+    <span style="display:flex;align-items:center;gap:4px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:{active_color};"></span>
+        {active_bench}</span>
+    <span style="display:flex;align-items:center;gap:4px;">
+        <span style="width:8px;height:8px;border-radius:50%;background:#dc2626;"></span>
+        Competitor</span>
+    <span>Occupato = <span style="font-weight:700;">BOOKED</span></span>
+    <span style="background:#f0fdf4;padding:2px 10px;border-radius:6px;color:#166534;">{active_bench} meno caro</span>
+    <span style="background:#fef2f2;padding:2px 10px;border-radius:6px;color:#991b1b;">Competitor meno caro</span>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
 # ── Calendar ───────────────────────────────────────────────
 
@@ -334,31 +387,21 @@ today = date.today()
 
 for (year, month), _ in sorted(months_set.items()):
     month_name = cal_mod.month_name[month]
-    st.markdown(
-        f'<h3 style="font-size:20px;font-weight:600;color:#1e293b;margin:24px 0 12px;">'
-        f'{month_name} {year}</h3>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="month-header">{month_name} {year}</div>', unsafe_allow_html=True)
 
     weeks = cal_mod.monthcalendar(year, month)
 
-    html = (
-        '<table style="border-collapse:separate;border-spacing:3px;width:100%;'
-        'text-align:center;font-family:Inter,sans-serif;">'
-    )
+    html = '<table class="cal-table">'
     html += "<tr>"
     for hdr in ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]:
-        html += (
-            f'<th style="padding:6px;font-size:11px;font-weight:600;color:#94a3b8;'
-            f'text-transform:uppercase;letter-spacing:0.08em;">{hdr}</th>'
-        )
+        html += f"<th>{hdr}</th>"
     html += "</tr>"
 
     for week in weeks:
         html += "<tr>"
         for day_num in week:
             if day_num == 0:
-                html += '<td style="padding:4px;"></td>'
+                html += '<td style="border:none;background:none;"></td>'
                 continue
 
             dt = date(year, month, day_num)
@@ -367,58 +410,50 @@ for (year, month), _ in sorted(months_set.items()):
             c = comp_days.get(dt_str)
 
             if dt < today:
-                html += f'<td style="padding:6px 2px;color:#cbd5e1;font-size:12px;">{day_num}</td>'
+                html += f'<td style="border:none;background:none;"><span class="cal-day-num cal-past">{day_num}</span></td>'
                 continue
 
             # Benchmark line
             if b and not b["available"]:
-                b_html = '<span style="color:#93c5fd;font-size:10px;">🔴</span>'
+                b_html = f'<div class="cal-booked" style="color:{active_color};">booked</div>'
             elif b and b.get("nightly_price"):
                 b_html = (
-                    f'<span style="color:#2563eb;font-weight:600;font-size:11px;">'
-                    f'€{b["nightly_price"]:.0f}</span>'
-                    f'<span style="color:#93c5fd;font-size:9px;"> {b["minNights"]}n</span>'
+                    f'<div><span class="cal-bench" style="color:{active_color};">€{b["nightly_price"]:.0f}</span>'
+                    f'<span class="cal-min" style="color:{active_color};"> {b["minNights"]}n</span></div>'
                 )
             elif b:
-                b_html = '<span style="color:#93c5fd;font-size:10px;">—</span>'
+                b_html = f'<div style="color:#d1d5db;font-size:10px;">—</div>'
             else:
                 b_html = ""
 
             # Competitor line
             if c and not c["available"]:
-                c_html = '<span style="color:#fca5a5;font-size:10px;">🔴</span>'
+                c_html = '<div class="cal-booked" style="color:#dc2626;">booked</div>'
             elif c and c.get("nightly_price"):
                 c_html = (
-                    f'<span style="color:#dc2626;font-weight:600;font-size:11px;">'
-                    f'€{c["nightly_price"]:.0f}</span>'
-                    f'<span style="color:#fca5a5;font-size:9px;"> {c["minNights"]}n</span>'
+                    f'<div><span class="cal-comp">€{c["nightly_price"]:.0f}</span>'
+                    f'<span class="cal-min" style="color:#dc2626;"> {c["minNights"]}n</span></div>'
                 )
             elif c:
-                c_html = '<span style="color:#fca5a5;font-size:10px;">—</span>'
+                c_html = '<div style="color:#d1d5db;font-size:10px;">—</div>'
             else:
                 c_html = ""
 
-            # Cell background
-            cell_bg = "#ffffff"
-            border_color = "#f1f5f9"
+            # Cell class for color coding
+            cell_class = ""
             if b and b.get("nightly_price") and c and c.get("nightly_price"):
                 bp, cp = b["nightly_price"], c["nightly_price"]
                 if bp < cp:
-                    cell_bg = "#eff6ff"
-                    border_color = "#bfdbfe"
+                    cell_class = "cal-cheaper-bench"
                 elif bp > cp:
-                    cell_bg = "#fef2f2"
-                    border_color = "#fecaca"
+                    cell_class = "cal-cheaper-comp"
                 else:
-                    cell_bg = "#f8fafc"
-                    border_color = "#e2e8f0"
+                    cell_class = "cal-same"
 
             html += (
-                f'<td style="padding:5px 2px;background:{cell_bg};border-radius:6px;'
-                f'border:1px solid {border_color};vertical-align:top;min-width:80px;">'
-                f'<div style="font-weight:700;font-size:13px;color:#334155;margin-bottom:3px;">{day_num}</div>'
-                f'<div style="line-height:1.5;">{b_html}</div>'
-                f'<div style="line-height:1.5;">{c_html}</div>'
+                f'<td class="{cell_class}">'
+                f'<div class="cal-day-num">{day_num}</div>'
+                f'{b_html}{c_html}'
                 f'</td>'
             )
         html += "</tr>"
@@ -426,11 +461,11 @@ for (year, month), _ in sorted(months_set.items()):
 
     st.markdown(html, unsafe_allow_html=True)
 
-st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:32px'></div>", unsafe_allow_html=True)
 
-# ── Price comparison table ─────────────────────────────────
+# ── Price windows detail ───────────────────────────────────
 st.markdown(
-    '<h3 style="font-size:20px;font-weight:600;color:#1e293b;">Dettaglio finestre di prezzo</h3>',
+    '<div class="month-header">Dettaglio finestre di prezzo</div>',
     unsafe_allow_html=True,
 )
 
@@ -438,7 +473,8 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.markdown(
-        '<p style="font-size:14px;font-weight:600;color:#2563eb;margin-bottom:4px;">Ca\'Mugo</p>',
+        f'<p style="font-size:13px;font-weight:700;color:{active_color};margin-bottom:4px;'
+        f'text-transform:uppercase;letter-spacing:0.06em;">{active_bench}</p>',
         unsafe_allow_html=True,
     )
     rows = []
@@ -452,13 +488,14 @@ with col1:
                 "/notte": f"€{w['price']['nightly']:.0f}",
             })
     if rows:
-        st.dataframe(rows, hide_index=True, width=500)
+        st.dataframe(rows, hide_index=True, use_container_width=True)
     else:
         st.caption("Nessun dato.")
 
 with col2:
     st.markdown(
-        '<p style="font-size:14px;font-weight:600;color:#dc2626;margin-bottom:4px;">Competitor</p>',
+        '<p style="font-size:13px;font-weight:700;color:#dc2626;margin-bottom:4px;'
+        'text-transform:uppercase;letter-spacing:0.06em;">Competitor</p>',
         unsafe_allow_html=True,
     )
     rows = []
@@ -472,6 +509,14 @@ with col2:
                 "/notte": f"€{w['price']['nightly']:.0f}",
             })
     if rows:
-        st.dataframe(rows, hide_index=True, width=500)
+        st.dataframe(rows, hide_index=True, use_container_width=True)
     else:
         st.caption("Nessun dato.")
+
+# ── Footer ─────────────────────────────────────────────────
+
+st.markdown("""
+<div style="text-align:center;padding:32px 0 0;color:#d1d5db;font-size:11px;font-weight:400;">
+    Airbnb Benchmark · Dati via Airbnb internal API · Prezzi in EUR
+</div>
+""", unsafe_allow_html=True)

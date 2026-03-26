@@ -303,17 +303,108 @@ def build_stay_windows(days: list[dict]) -> list[dict]:
     return windows
 
 
-def fetch_prices_for_windows(listing_id: str, windows: list[dict], max_calls: int = 25) -> list[dict]:
-    """Fetch prices for a subset of stay windows.
+def _generate_monthly_probes(days: list[dict]) -> list[dict]:
+    """Generate price probe windows spread across each month.
 
-    To minimize API calls, samples evenly across the date range.
-    Returns windows enriched with 'price' dict.
+    For months with few/no available windows, creates synthetic check-in/out
+    pairs (e.g. 1st and 15th of each month, 5-night stays). Airbnb returns
+    prices even for unavailable dates.
     """
-    if len(windows) <= max_calls:
-        selected = windows
+    from collections import defaultdict
+    today = date.today()
+    months_seen = set()
+    probes = []
+
+    for day in days:
+        m = day["date"][:7]  # "2026-07"
+        months_seen.add(m)
+
+    for m in sorted(months_seen):
+        year, month = int(m[:4]), int(m[5:7])
+        for start_day in (1, 8, 15, 22):
+            try:
+                d_in = date(year, month, start_day)
+            except ValueError:
+                continue
+            if d_in <= today:
+                continue
+            d_out = d_in + timedelta(days=5)
+            probes.append({
+                "check_in": d_in.isoformat(),
+                "check_out": d_out.isoformat(),
+                "minNights": 5,
+                "probe": True,
+            })
+
+    return probes
+
+
+def fetch_prices_for_windows(listing_id: str, windows: list[dict], max_calls: int = 25) -> list[dict]:
+    """Fetch prices for stay windows plus monthly probes for coverage.
+
+    Combines real available windows with synthetic probes to ensure
+    every month has price data. Samples evenly across the date range.
+    """
+    # Merge real windows + probes, deduplicate by check_in date
+    all_days_for_probes = []  # We need calendar days for probes, pass windows' date range
+    if windows:
+        first = date.fromisoformat(windows[0]["check_in"])
+        last = date.fromisoformat(windows[-1]["check_in"])
+        # Create minimal day list for probe generation
+        d = first.replace(day=1)
+        end = (last.replace(day=1) + timedelta(days=32)).replace(day=1)
+        while d < end:
+            all_days_for_probes.append({"date": d.isoformat()})
+            d += timedelta(days=1)
+
+    probes = _generate_monthly_probes(all_days_for_probes) if all_days_for_probes else []
+
+    # Combine: real windows first, then probes for months with no coverage
+    seen_months = set()
+    for w in windows:
+        seen_months.add(w["check_in"][:7])
+
+    combined = list(windows)
+    for p in probes:
+        m = p["check_in"][:7]
+        if m not in seen_months:
+            combined.append(p)
+            seen_months.add(m)  # one probe per uncovered month
+        elif sum(1 for w in windows if w["check_in"][:7] == m) < 3:
+            # Also add probes for months with very few windows
+            combined.append(p)
+
+    # Sort by date
+    combined.sort(key=lambda w: w["check_in"])
+
+    # Ensure at least one window per month is always selected
+    from collections import defaultdict
+    by_month = defaultdict(list)
+    for i, w in enumerate(combined):
+        by_month[w["check_in"][:7]].append((i, w))
+
+    # First, pick one from each month (mandatory)
+    mandatory = []
+    mandatory_indices = set()
+    for m in sorted(by_month):
+        items = by_month[m]
+        # Pick the middle one
+        mid = items[len(items) // 2][1]
+        mandatory.append(mid)
+        mandatory_indices.add(items[len(items) // 2][0])
+
+    # Fill remaining budget with evenly spaced windows
+    remaining_budget = max(0, max_calls - len(mandatory))
+    others = [w for i, w in enumerate(combined) if i not in mandatory_indices]
+
+    if len(others) <= remaining_budget:
+        selected = mandatory + others
     else:
-        step = len(windows) / max_calls
-        selected = [windows[int(i * step)] for i in range(max_calls)]
+        step = len(others) / remaining_budget if remaining_budget > 0 else 1
+        sampled = [others[int(i * step)] for i in range(remaining_budget)]
+        selected = mandatory + sampled
+
+    selected.sort(key=lambda w: w["check_in"])
 
     results = []
     for w in selected:
@@ -348,20 +439,20 @@ def interpolate_daily_prices(calendar_days: list[dict], priced_windows: list[dic
         day_copy["nightly_price"] = price_map.get(day["date"])
         enriched.append(day_copy)
 
-    # Forward fill for gaps (including unavailable days — show estimated price)
+    # Forward fill for gaps — only for AVAILABLE days
     last_price = None
     for day in enriched:
         if day["nightly_price"] is not None:
             last_price = day["nightly_price"]
-        elif last_price is not None:
+        elif last_price is not None and day["available"]:
             day["nightly_price"] = last_price
 
-    # Backward fill for days before first priced window
+    # Backward fill for available days before first priced window
     last_price = None
     for day in reversed(enriched):
         if day["nightly_price"] is not None:
             last_price = day["nightly_price"]
-        elif last_price is not None:
+        elif last_price is not None and day["available"]:
             day["nightly_price"] = last_price
 
     return enriched

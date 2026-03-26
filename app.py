@@ -41,6 +41,7 @@ COMP_COLOR = "#f43f5e"
 COMP_LIGHT = "#fb7185"
 
 SAVED_FILE = Path(__file__).parent / "saved_competitors.json"
+REFRESH_FILE = Path(__file__).parent / "last_refresh.json"
 
 # ── Page config ────────────────────────────────────────────
 
@@ -443,8 +444,17 @@ bench = BENCHMARKS[bench_name]
 
 # ── Refresh benchmark data ────────────────────────────────
 
-last_refresh_key = f"last_refresh_{bench_name}"
-last_refresh = st.session_state.get(last_refresh_key)
+def _load_refresh_times() -> dict:
+    if REFRESH_FILE.exists():
+        return json.loads(REFRESH_FILE.read_text())
+    return {}
+
+def _save_refresh_time(prop_name: str):
+    data = _load_refresh_times()
+    data[prop_name] = datetime.now().strftime("%d/%m/%Y %H:%M")
+    REFRESH_FILE.write_text(json.dumps(data))
+
+last_refresh = _load_refresh_times().get(bench_name)
 
 col_refresh, col_ts = st.columns([1, 4])
 with col_refresh:
@@ -475,8 +485,7 @@ if refresh_bench:
         with st.spinner("Aggiornamento competitor..."):
             comp_data = _fetch_property(comp_id, n_calls, months)
             st.session_state["comp"] = comp_data
-    now_str = datetime.now().strftime("%d/%m/%Y %H:%M")
-    st.session_state[last_refresh_key] = now_str
+    _save_refresh_time(bench_name)
     st.rerun()
 
 st.divider()

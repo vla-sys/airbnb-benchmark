@@ -416,7 +416,14 @@ st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
 # ── Launch analysis ────────────────────────────────────────
 
-col_slider, col_btn = st.columns([4, 1])
+col_months, col_slider, col_btn = st.columns([2, 3, 1])
+with col_months:
+    months_ahead = st.select_slider(
+        "Mesi in avanti",
+        options=list(range(1, 13)),
+        value=4,
+        help="Quanti mesi di calendario analizzare (1-12)",
+    )
 with col_slider:
     max_price_calls = st.slider(
         "Precisione prezzo",
@@ -430,9 +437,9 @@ with col_btn:
 # ── Fetch data ─────────────────────────────────────────────
 
 
-def _fetch_property(listing_id: str, n_calls: int) -> dict:
+def _fetch_property(listing_id: str, n_calls: int, months: int = 4) -> dict:
     today = date.today()
-    cal_days = fetch_calendar(listing_id, today.month, today.year, count=4)
+    cal_days = fetch_calendar(listing_id, today.month, today.year, count=months)
     if not cal_days:
         return {"days": [], "windows": []}
     windows = build_stay_windows(cal_days)
@@ -453,9 +460,9 @@ if go:
         st.stop()
 
     progress = st.progress(0, text=f"Scaricamento {bench_name}...")
-    bench_data = _fetch_property(bench["listing_id"], max_price_calls)
+    bench_data = _fetch_property(bench["listing_id"], max_price_calls, months_ahead)
     progress.progress(50, text="Scaricamento competitor...")
-    comp_data = _fetch_property(comp_id, max_price_calls)
+    comp_data = _fetch_property(comp_id, max_price_calls, months_ahead)
     progress.progress(100, text="Completato")
 
     st.session_state["bench"] = bench_data

@@ -24,23 +24,21 @@ BENCHMARKS = {
     "Ca'Mugo": {
         "listing_id": "1363939812329907610",
         "icon": "🏔️",
-        "accent": "#6366f1",
-        "accent_light": "#818cf8",
-        "gradient": "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+        "accent": "#ff385c",
+        "accent_light": "#ff5a7d",
         "location": "Borca di Cadore, Dolomiti",
     },
     "Ca'Mirto": {
         "listing_id": "12323106",
         "icon": "🏖️",
-        "accent": "#10b981",
-        "accent_light": "#34d399",
-        "gradient": "linear-gradient(135deg, #10b981 0%, #06b6d4 100%)",
+        "accent": "#008489",
+        "accent_light": "#00a3a3",
         "location": "San Teodoro, Sardegna",
     },
 }
 
-COMP_COLOR = "#f43f5e"
-COMP_LIGHT = "#fb7185"
+COMP_COLOR = "#222222"
+COMP_LIGHT = "#484848"
 
 SAVED_FILE = Path(__file__).parent / "saved_competitors.json"
 REFRESH_FILE = Path(__file__).parent / "last_refresh.json"
@@ -83,20 +81,18 @@ def _check_password() -> bool:
     <style>
         #MainMenu, footer, header, [data-testid="stSidebarCollapsedControl"],
         [data-testid="stDeployButton"], [data-testid="stToolbar"] {display:none !important;}
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        html, body, [class*="css"] {font-family:'Inter',sans-serif;}
-        .stApp {background:#0f172a;}
+        html, body, [class*="css"] {font-family:Circular,-apple-system,system-ui,Roboto,'Helvetica Neue',sans-serif;}
+        .stApp {background:#ffffff;}
     </style>
     """, unsafe_allow_html=True)
 
     st.markdown("""
     <div style="display:flex;justify-content:center;align-items:center;min-height:70vh;">
         <div style="text-align:center;">
-            <div style="font-size:48px;font-weight:900;color:#fff;letter-spacing:-0.04em;margin-bottom:4px;">
-                Airbnb <span style="background:linear-gradient(90deg,#a5b4fc,#c4b5fd);
-                -webkit-background-clip:text;-webkit-text-fill-color:transparent;">Benchmark</span>
+            <div style="font-size:42px;font-weight:700;color:#222222;letter-spacing:-0.03em;margin-bottom:4px;">
+                Airbnb <span style="color:#ff385c;">Benchmark</span>
             </div>
-            <div style="font-size:14px;color:rgba(255,255,255,0.35);margin-bottom:40px;">
+            <div style="font-size:14px;color:#6a6a6a;margin-bottom:40px;">
                 Inserisci la password per accedere
             </div>
         </div>
@@ -126,256 +122,220 @@ st.markdown("""
     #MainMenu, footer, header, [data-testid="stSidebarCollapsedControl"],
     [data-testid="stDeployButton"], [data-testid="stToolbar"] {display:none !important;}
 
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    html, body, [class*="css"] {font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;}
+    html, body, [class*="css"] {font-family:Circular,-apple-system,system-ui,Roboto,'Helvetica Neue',sans-serif;}
     html {scroll-behavior:smooth;}
-    .stApp {background:#f8f9fb;}
+    .stApp {background:#ffffff;}
 
     .block-container {max-width:1100px; padding:0 2rem 6rem;}
 
     /* ── Fade-in animation ── */
     @keyframes fadeInUp {
-        from {opacity:0; transform:translateY(20px);}
+        from {opacity:0; transform:translateY(12px);}
         to {opacity:1; transform:translateY(0);}
     }
-    @keyframes shimmer {
-        0% {background-position:200% 0;}
-        100% {background-position:-200% 0;}
-    }
-    @keyframes gradientShift {
-        0%,100% {background-position:0% 50%;}
-        50% {background-position:100% 50%;}
-    }
-    .fade-in {animation:fadeInUp 0.6s cubic-bezier(0.16,1,0.3,1) both;}
-    .fade-in-d1 {animation-delay:0.1s;}
-    .fade-in-d2 {animation-delay:0.2s;}
-    .fade-in-d3 {animation-delay:0.3s;}
-    .fade-in-d4 {animation-delay:0.4s;}
+    .fade-in {animation:fadeInUp 0.5s ease both;}
+    .fade-in-d1 {animation-delay:0.08s;}
+    .fade-in-d2 {animation-delay:0.16s;}
+    .fade-in-d3 {animation-delay:0.24s;}
 
     /* ── Metric cards ── */
     [data-testid="stMetric"] {
-        background:#fff;
-        border:1px solid #eef0f4;
-        border-radius:20px;
-        padding:28px 28px 24px;
-        box-shadow:0 1px 2px rgba(0,0,0,0.02), 0 4px 16px rgba(0,0,0,0.02);
-        transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+        background:#ffffff;
+        border-radius:12px;
+        padding:24px 24px 20px;
+        box-shadow:rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
+        transition:all 0.2s ease;
     }
     [data-testid="stMetric"]:hover {
-        box-shadow:0 4px 20px rgba(0,0,0,0.06);
-        transform:translateY(-3px);
+        box-shadow:rgba(0,0,0,0.08) 0px 4px 12px;
+        transform:translateY(-2px);
     }
     [data-testid="stMetric"] label {
-        font-size:10px !important; font-weight:700 !important; color:#9ca3af !important;
-        text-transform:uppercase; letter-spacing:0.14em;
+        font-size:11px !important; font-weight:600 !important; color:#6a6a6a !important;
+        text-transform:uppercase; letter-spacing:0.08em;
     }
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        font-size:32px !important; font-weight:900 !important; color:#111827 !important;
-        letter-spacing:-0.04em;
+        font-size:28px !important; font-weight:700 !important; color:#222222 !important;
+        letter-spacing:-0.03em;
     }
-    [data-testid="stMetric"] [data-testid="stMetricDelta"] {font-size:13px !important; font-weight:700 !important;}
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {font-size:13px !important; font-weight:600 !important;}
 
     /* ── Tabs ── */
     .stTabs [data-baseweb="tab-list"] {
-        gap:4px; border-bottom:none; background:#f1f3f5; padding:4px;
-        border-radius:14px; width:fit-content;
+        gap:0; border-bottom:1px solid #dddddd; background:transparent; padding:0;
+        border-radius:0;
     }
     .stTabs [data-baseweb="tab"] {
-        font-weight:600; font-size:13px; color:#6b7280;
-        padding:8px 20px; border-bottom:none; border-radius:10px;
+        font-weight:600; font-size:14px; color:#6a6a6a;
+        padding:12px 20px; border-bottom:2px solid transparent; border-radius:0;
         transition:all 0.2s;
     }
     .stTabs [aria-selected="true"] {
-        color:#111827 !important; background:#fff !important;
-        box-shadow:0 1px 3px rgba(0,0,0,0.08) !important;
-        border-bottom-color:transparent !important;
+        color:#222222 !important; background:transparent !important;
+        box-shadow:none !important;
+        border-bottom:2px solid #ff385c !important;
     }
 
     /* ── Buttons ── */
     .stButton > button[kind="primary"] {
-        background:linear-gradient(135deg, #111827 0%, #1f2937 100%);
-        color:#fff; border:none; border-radius:14px;
-        padding:14px 40px; font-weight:700; font-size:14px;
-        letter-spacing:0.01em;
-        box-shadow:0 4px 14px rgba(17,24,39,0.25);
-        transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+        background:#222222;
+        color:#fff; border:none; border-radius:8px;
+        padding:14px 24px; font-weight:600; font-size:14px;
+        transition:all 0.2s ease;
     }
     .stButton > button[kind="primary"]:hover {
-        transform:translateY(-2px);
-        box-shadow:0 8px 28px rgba(17,24,39,0.3);
+        background:#ff385c;
+        transform:translateY(-1px);
+        box-shadow:rgba(0,0,0,0.08) 0px 4px 12px;
     }
     .stButton > button[kind="secondary"] {
-        border-radius:12px; border:1.5px solid #e5e7eb !important;
-        font-weight:600; font-size:13px; transition:all 0.2s;
+        border-radius:8px; border:1px solid #dddddd !important;
+        font-weight:600; font-size:13px; color:#222222;
+        transition:all 0.2s;
     }
     .stButton > button[kind="secondary"]:hover {
-        border-color:#d1d5db !important; background:#f9fafb !important;
-        transform:translateY(-1px);
+        border-color:#222222 !important; background:#f7f7f7 !important;
     }
 
     /* ── Inputs ── */
     .stTextInput > div > div > input,
     .stSelectbox > div > div > div {
-        border-radius:14px !important; border:1.5px solid #e5e7eb !important;
-        font-size:14px !important; transition:all 0.25s; background:#fff !important;
+        border-radius:8px !important; border:1px solid #dddddd !important;
+        font-size:14px !important; color:#222222 !important;
+        transition:all 0.2s; background:#fff !important;
     }
     .stTextInput > div > div > input:focus {
-        border-color:#6366f1 !important;
-        box-shadow:0 0 0 4px rgba(99,102,241,0.06) !important;
+        border-color:#222222 !important;
+        box-shadow:0 0 0 2px rgba(34,34,34,0.1) !important;
     }
 
     /* ── Slider ── */
-    .stSlider > div > div > div > div {background:linear-gradient(90deg,#6366f1,#8b5cf6) !important; height:4px !important;}
+    .stSlider > div > div > div > div {background:#ff385c !important; height:3px !important;}
     .stSlider [data-baseweb="thumb"] {
-        background:#fff !important; border:2.5px solid #6366f1 !important;
-        box-shadow:0 2px 8px rgba(99,102,241,0.25); width:18px !important; height:18px !important;
+        background:#fff !important; border:2px solid #ff385c !important;
+        box-shadow:0 2px 6px rgba(0,0,0,0.15); width:16px !important; height:16px !important;
     }
 
     /* ── Divider ── */
-    hr {border:none; height:1px; background:linear-gradient(90deg, transparent, #e5e7eb, transparent); margin:48px 0;}
+    hr {border:none; height:1px; background:#dddddd; margin:32px 0;}
 
     /* ── Hero section ── */
     .hero {
-        background:linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #312e81 70%, #4338ca 100%);
-        background-size:300% 300%;
-        animation:gradientShift 8s ease infinite;
-        border-radius:28px;
-        padding:56px 60px 48px;
-        margin:0 0 48px;
-        position:relative;
-        overflow:hidden;
-    }
-    .hero::before {
-        content:'';
-        position:absolute; inset:0;
-        background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        pointer-events:none;
-    }
-    .hero::after {
-        content:'';
-        position:absolute;
-        bottom:-60%; right:-20%;
-        width:500px; height:500px;
-        background:radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
-        pointer-events:none;
+        background:#ffffff;
+        border-radius:12px;
+        padding:48px 0 40px;
+        margin:0 0 32px;
+        border-bottom:1px solid #dddddd;
     }
     .hero h1 {
-        margin:0 0 10px; font-size:48px; font-weight:900; color:#fff;
-        letter-spacing:-0.045em; line-height:1.05; position:relative;
+        margin:0 0 10px; font-size:42px; font-weight:700; color:#222222;
+        letter-spacing:-0.03em; line-height:1.1;
     }
     .hero h1 span {
-        background:linear-gradient(90deg, #a5b4fc, #c4b5fd, #a5b4fc);
-        background-size:200% auto;
-        -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-        background-clip:text;
-        animation:shimmer 3s linear infinite;
+        color:#ff385c;
     }
     .hero p {
-        margin:0; font-size:16px; color:rgba(255,255,255,0.55); font-weight:400;
-        letter-spacing:-0.01em; position:relative; max-width:480px;
+        margin:0; font-size:16px; color:#6a6a6a; font-weight:400;
+        letter-spacing:-0.01em; max-width:480px;
     }
     .hero-badge {
         display:inline-flex; align-items:center; gap:7px;
-        padding:7px 16px; border-radius:100px;
-        background:rgba(255,255,255,0.06);
-        border:1px solid rgba(255,255,255,0.08);
-        font-size:12px; font-weight:600; color:rgba(255,255,255,0.5);
-        letter-spacing:0.03em; margin-top:20px; position:relative;
-        backdrop-filter:blur(8px);
+        padding:6px 14px; border-radius:100px;
+        background:#f7f7f7;
+        border:1px solid #dddddd;
+        font-size:12px; font-weight:600; color:#6a6a6a;
+        letter-spacing:0.02em; margin-top:16px;
     }
-    .hero-badge .dot {width:6px;height:6px;border-radius:50%;background:#34d399;animation:pulse 2s infinite;}
+    .hero-badge .dot {width:6px;height:6px;border-radius:50%;background:#008489;animation:pulse 2s infinite;}
     @keyframes pulse {
-        0%,100% {opacity:1; box-shadow:0 0 0 0 rgba(52,211,153,0.4);}
-        50% {opacity:0.6; box-shadow:0 0 0 6px rgba(52,211,153,0);}
+        0%,100% {opacity:1; box-shadow:0 0 0 0 rgba(0,132,137,0.3);}
+        50% {opacity:0.6; box-shadow:0 0 0 6px rgba(0,132,137,0);}
     }
 
     /* ── Section headers ── */
     .section-title {
-        font-size:18px; font-weight:800; color:#111827; letter-spacing:-0.03em;
-        margin:48px 0 24px; display:flex; align-items:center; gap:12px;
+        font-size:22px; font-weight:700; color:#222222; letter-spacing:-0.02em;
+        margin:40px 0 20px; display:flex; align-items:center; gap:12px;
     }
-    .section-title .icon {font-size:14px; opacity:0.5;}
-    .section-title .line {flex:1; height:1px; background:linear-gradient(90deg, #e5e7eb, transparent);}
+    .section-title .line {flex:1; height:1px; background:#dddddd;}
 
     /* ── Calendar ── */
     .cal-wrap {
-        background:#fff; border-radius:24px; padding:36px;
-        border:1px solid #eef0f4;
-        box-shadow:0 1px 2px rgba(0,0,0,0.02), 0 4px 16px rgba(0,0,0,0.02);
-        margin-bottom:28px;
+        background:#ffffff; border-radius:12px; padding:32px;
+        box-shadow:rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
+        margin-bottom:24px;
     }
     .cal-month-title {
-        font-size:24px; font-weight:900; color:#111827;
-        letter-spacing:-0.04em; margin-bottom:24px;
+        font-size:22px; font-weight:700; color:#222222;
+        letter-spacing:-0.02em; margin-bottom:20px;
     }
-    .cal-month-title span {font-weight:400; color:#9ca3af;}
-    .cal-table {border-collapse:separate; border-spacing:4px; width:100%; text-align:center; font-family:Inter,sans-serif;}
+    .cal-month-title span {font-weight:400; color:#6a6a6a;}
+    .cal-table {border-collapse:separate; border-spacing:4px; width:100%; text-align:center;}
     .cal-table th {
-        padding:12px 4px; font-size:9px; font-weight:800; color:#9ca3af;
-        text-transform:uppercase; letter-spacing:0.16em;
+        padding:10px 4px; font-size:10px; font-weight:700; color:#6a6a6a;
+        text-transform:uppercase; letter-spacing:0.1em;
     }
     .cal-table td {
-        padding:10px 6px; border-radius:16px; vertical-align:top; min-width:100px;
-        background:#f9fafb; border:1.5px solid #f3f4f6;
-        transition:all 0.25s cubic-bezier(0.16,1,0.3,1);
+        padding:10px 6px; border-radius:12px; vertical-align:top; min-width:100px;
+        background:#f7f7f7; border:1px solid #ebebeb;
+        transition:all 0.2s ease;
     }
     .cal-table td:hover {
-        background:#fff; border-color:#e5e7eb;
-        box-shadow:0 4px 16px rgba(0,0,0,0.05);
-        transform:translateY(-2px);
+        background:#fff; border-color:#dddddd;
+        box-shadow:rgba(0,0,0,0.08) 0px 4px 12px;
+        transform:translateY(-1px);
     }
-    .cal-day-num {font-weight:900; font-size:16px; color:#374151; margin-bottom:6px; letter-spacing:-0.02em;}
-    .cal-past {color:#d1d5db !important; font-weight:400;}
-    .cal-bench {font-weight:800; font-size:12px; letter-spacing:-0.01em;}
-    .cal-comp {font-weight:800; font-size:12px; letter-spacing:-0.01em;}
-    .cal-min {font-size:8px; font-weight:700; opacity:0.45; margin-left:2px;}
+    .cal-day-num {font-weight:700; font-size:15px; color:#222222; margin-bottom:5px; letter-spacing:-0.01em;}
+    .cal-past {color:#c1c1c1 !important; font-weight:400;}
+    .cal-bench {font-weight:700; font-size:12px;}
+    .cal-comp {font-weight:700; font-size:12px;}
+    .cal-min {font-size:8px; font-weight:600; opacity:0.45; margin-left:2px;}
     .cal-booked {
-        font-size:7px; font-weight:800; letter-spacing:0.1em;
-        text-transform:uppercase; padding:2px 7px; border-radius:5px;
+        font-size:7px; font-weight:700; letter-spacing:0.08em;
+        text-transform:uppercase; padding:2px 7px; border-radius:4px;
         display:inline-block; margin-top:2px;
     }
     .cal-cheaper-bench {background:#ecfdf5 !important; border-color:#a7f3d0 !important;}
     .cal-cheaper-comp {background:#fff1f2 !important; border-color:#fecdd3 !important;}
-    .cal-same {background:#f9fafb !important; border-color:#f3f4f6 !important;}
-    .cal-today {border-color:#6366f1 !important; border-width:2.5px !important; box-shadow:0 0 0 3px rgba(99,102,241,0.08);}
+    .cal-same {background:#f7f7f7 !important; border-color:#ebebeb !important;}
+    .cal-today {border-color:#ff385c !important; border-width:2px !important; box-shadow:0 0 0 3px rgba(255,56,92,0.08);}
 
     /* ── Legend bar ── */
     .legend-bar {
         display:flex; flex-wrap:wrap; gap:20px; align-items:center;
-        padding:16px 24px; border-radius:16px;
-        background:#fff; border:1px solid #eef0f4;
-        font-size:12px; font-weight:600; color:#6b7280;
-        margin-bottom:28px;
-        box-shadow:0 1px 2px rgba(0,0,0,0.02);
+        padding:14px 20px; border-radius:12px;
+        background:#ffffff;
+        box-shadow:rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
+        font-size:12px; font-weight:600; color:#6a6a6a;
+        margin-bottom:24px;
     }
     .legend-dot {width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;}
     .legend-tag {
         padding:4px 12px; border-radius:8px; font-size:11px; font-weight:700;
-        letter-spacing:0.02em;
+        letter-spacing:0.01em;
     }
 
     /* ── Dataframe ── */
-    .stDataFrame {border-radius:16px !important; overflow:hidden;}
-    .stDataFrame [data-testid="stDataFrameResizable"] {border-radius:16px; border:1px solid #eef0f4;}
+    .stDataFrame {border-radius:12px !important; overflow:hidden;}
+    .stDataFrame [data-testid="stDataFrameResizable"] {border-radius:12px; border:1px solid #ebebeb;}
 
     /* ── Progress bar ── */
     .stProgress > div > div > div {
-        background:linear-gradient(90deg,#6366f1,#8b5cf6) !important;
+        background:#ff385c !important;
         border-radius:100px;
     }
 
     /* ── Property selector card ── */
     .prop-card {
-        background:#fff; border:1px solid #eef0f4; border-radius:20px;
-        padding:24px 28px; margin-bottom:8px;
-        box-shadow:0 1px 2px rgba(0,0,0,0.02);
+        background:#fff; border-radius:12px;
+        padding:20px 24px; margin-bottom:8px;
+        box-shadow:rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
     }
 
     /* ── Footer ── */
     .app-footer {
-        text-align:center; padding:64px 0 0;
-        font-size:11px; font-weight:500; color:#d1d5db;
-        letter-spacing:0.04em; text-transform:uppercase;
+        text-align:center; padding:48px 0 0;
+        font-size:13px; font-weight:500; color:#6a6a6a;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -454,7 +414,7 @@ def _fetch_property(listing_id: str, n_calls: int, months: int = 4) -> dict:
 
 st.markdown("""
 <div class="hero fade-in">
-    <h1>Airbnb<br><span>Benchmark</span></h1>
+    <h1>Airbnb <span>Benchmark</span></h1>
     <p>Confronta prezzi e disponibilità delle tue property con i competitor — dati aggiornati in tempo reale.</p>
     <div class="hero-badge">
         <span class="dot"></span>
@@ -515,13 +475,13 @@ with col_refresh:
 with col_ts:
     if last_refresh:
         st.markdown(
-            f'<div style="padding:10px 0;font-size:13px;color:#94a3b8;">'
-            f'Ultimo aggiornamento: <strong style="color:#64748b;">{last_refresh}</strong></div>',
+            f'<div style="padding:10px 0;font-size:13px;color:#6a6a6a;">'
+            f'Ultimo aggiornamento: <strong style="color:#222222;">{last_refresh}</strong></div>',
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            '<div style="padding:10px 0;font-size:13px;color:#94a3b8;">Mai aggiornato</div>',
+            '<div style="padding:10px 0;font-size:13px;color:#6a6a6a;">Mai aggiornato</div>',
             unsafe_allow_html=True,
         )
 
@@ -561,7 +521,7 @@ with tab_saved:
         comp_url_to_use = selected_comp["url"]
     else:
         st.markdown(
-            '<p style="color:#94a3b8;font-size:14px;padding:20px 0;">'
+            '<p style="color:#6a6a6a;font-size:14px;padding:20px 0;">'
             'Nessun competitor salvato. Aggiungi un URL nella tab <strong>Nuovo URL</strong>.</p>',
             unsafe_allow_html=True,
         )
@@ -598,8 +558,8 @@ with tab_manage:
             with col_info:
                 st.markdown(
                     f'<div style="padding:10px 0;font-size:14px;">'
-                    f'<strong style="color:#0f172a;">{c["name"]}</strong>'
-                    f'<span style="color:#94a3b8;margin-left:8px;font-size:12px;">ID {c["listing_id"]}</span></div>',
+                    f'<strong style="color:#222222;">{c["name"]}</strong>'
+                    f'<span style="color:#6a6a6a;margin-left:8px;font-size:12px;">ID {c["listing_id"]}</span></div>',
                     unsafe_allow_html=True,
                 )
             with col_del:
@@ -607,7 +567,7 @@ with tab_manage:
                     _remove_competitor(bench_name, c["listing_id"])
                     st.rerun()
     else:
-        st.markdown('<p style="color:#94a3b8;font-size:14px;padding:20px 0;">Lista vuota.</p>', unsafe_allow_html=True)
+        st.markdown('<p style="color:#6a6a6a;font-size:14px;padding:20px 0;">Lista vuota.</p>', unsafe_allow_html=True)
 
 st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
@@ -701,11 +661,11 @@ st.markdown(f"""
 <div class="legend-bar fade-in fade-in-d1">
     <span><span class="legend-dot" style="background:{ac};"></span> {active_bench}</span>
     <span><span class="legend-dot" style="background:{COMP_COLOR};"></span> Competitor</span>
-    <span style="color:#94a3b8;">|</span>
+    <span style="color:#6a6a6a;">|</span>
     <span class="legend-tag" style="background:#ecfdf5;color:#065f46;">{active_bench} meno caro</span>
     <span class="legend-tag" style="background:#fff1f2;color:#9f1239;">Competitor meno caro</span>
-    <span style="color:#94a3b8;">|</span>
-    <span style="font-weight:700;color:#475569;">BOOKED</span> = occupato
+    <span style="color:#6a6a6a;">|</span>
+    <span style="font-weight:700;color:#222222;">BOOKED</span> = occupato
 </div>
 """, unsafe_allow_html=True)
 
@@ -762,7 +722,7 @@ for (year, month), _ in sorted(months_set.items()):
                     f'<span class="cal-min" style="color:{ac};"> {b["minNights"]}n</span></div>'
                 )
             elif b:
-                b_html = '<div style="color:#cbd5e1;font-size:10px;">—</div>'
+                b_html = '<div style="color:#c1c1c1;font-size:10px;">—</div>'
             else:
                 b_html = ""
 
@@ -775,7 +735,7 @@ for (year, month), _ in sorted(months_set.items()):
                     f'<span class="cal-min" style="color:{COMP_COLOR};"> {c["minNights"]}n</span></div>'
                 )
             elif c:
-                c_html = '<div style="color:#cbd5e1;font-size:10px;">—</div>'
+                c_html = '<div style="color:#c1c1c1;font-size:10px;">—</div>'
             else:
                 c_html = ""
 
@@ -858,6 +818,6 @@ with col2:
 
 st.markdown("""
 <div class="app-footer">
-    Airbnb Benchmark &nbsp;·&nbsp; Dati via Airbnb Internal API &nbsp;·&nbsp; Prezzi in EUR
+    Airbnb Benchmark · Dati via Airbnb Internal API · Prezzi in EUR
 </div>
 """, unsafe_allow_html=True)
